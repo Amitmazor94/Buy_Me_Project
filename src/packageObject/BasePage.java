@@ -81,7 +81,7 @@ public class BasePage {
        }
        wait.until(ExpectedConditions.visibilityOfElementLocated(by));
     }
-
+//*
             }
 
 
