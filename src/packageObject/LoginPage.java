@@ -5,34 +5,53 @@ import org.openqa.selenium.WebDriver;
 
 public class LoginPage extends BasePage {
     //**Web Elements**//
-    By emailField = By.cssSelector("input[id='ember1839']");
-    By passwordField = By.cssSelector("input[id='ember1846']");
-    By enterBuyMeButton = By.cssSelector("#ember1855");
-    By signUpButton = By.cssSelector("span[data-ember-action='1834']");
-    By rememberMeCeckBox = By.cssSelector("#ember1852 .icon circle.fill");
-    By forgotPasswordTextButton = By.cssSelector("u[data-ember-action='1854']");
-    By facebookLoginButton = By.cssSelector("div[data-ember-action='1835']");
-    By googleLoginButton = By.cssSelector("div[data-ember-action='1836']");
-    By xButton = By.cssSelector("#times");
-    By accessButton = By.cssSelector("div[aria-label='לפתיחה תפריט להתאמה אישית']");
+    By emailField = By.cssSelector("input[placeholder='מייל']");
+    By passwordField = By.cssSelector("input[placeholder='סיסמה']");
+    By enterBuyMeButton = By.cssSelector("button[type='submit']");
+    By signUpButton = By.cssSelector("span[class='text-link theme']");
+    By mailErrorMessage = By.cssSelector("#parsley-id-12");
+    By passwordErrorMessage = By.cssSelector("#parsley-id-14");
 
+    //**Constructors**//
+    //Connect the page to a Web Driver
     public LoginPage(WebDriver driver) {
         super(driver);
     }
 
+    //**Methods**//
 
-    //**Page Methods**//
+    //Fill the email field according to xml file
     public LoginPage setEmailField(String email) {
         writeText(emailField, email);
         return this;
 
     }
 
-    public LoginPage setPasswordField(String password){
+    //Fill the password field according to xml file
+    public LoginPage setPasswordField(String password) {
         writeText(passwordField, password);
         return this;
     }
 
+    //Click Enter Buyme button
+    public void clickEnterBuyme() {
+        clickButton(enterBuyMeButton);
+    }
 
+    //Opening signup page
+    public void clickSignUpButton() {
+        clickButton(signUpButton);
+    }
+
+    //Read the email error message
+    public String readMailErrorMessage() {
+        return readText(mailErrorMessage);
+    }
+
+    //read the password error message
+    public String readPasswordErrorMessage() {
+        return
+                readText(passwordErrorMessage);
+    }
 }
 

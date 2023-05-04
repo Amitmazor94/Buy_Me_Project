@@ -1,113 +1,183 @@
 package packageObject;
 
-import jdk.dynalink.beans.StaticClass;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
+import com.relevantcodes.extentreports.LogStatus;
+import org.junit.Assert;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.w3c.dom.Document;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
 import java.time.Duration;
+import java.util.List;
+import java.util.Random;
+
+
+import static tests.BaseTest.*;
+
 public class BasePage {
     //**Attributes**//
-   public WebDriver driver= null;
-   public WebDriverWait wait;
+    public WebDriver driver = null;
+    public WebDriverWait wait;
 
 
-
-    //**Constructor**
-   public BasePage(WebDriver driver){
-       this.driver=driver;
-       wait =new WebDriverWait(driver , Duration.ofSeconds(65));
-   }
-
-//**Methods**
-    //Text Writing
-    public void writeText(By elementLocation, String text){
-       waitVisibility(elementLocation);
-    driver.findElement(elementLocation).clear();
-    driver.findElement(elementLocation).sendKeys();
+    //**Constructors**//
+    //Connect Web Driver to the relevant pages
+    public BasePage(WebDriver driver) {
+        this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(65));
     }
 
+    public BasePage() {
+
+    }
+
+    //**Methods**
+    //Text Writing
+    public void writeText(By elementLocation, String text) {
+        waitVisibility(elementLocation);
+        driver.findElement(elementLocation).clear();
+        driver.findElement(elementLocation).sendKeys(text);
+    }
+
+    //Get URL
+    public String readPagesUrl() {
+        return
+                driver.getCurrentUrl();
+    }
 
     //Click on a button
     public void clickButton(By elementLocation) {
-       waitVisibility(elementLocation);
+        waitVisibility(elementLocation);
         driver.findElement(elementLocation).click();
     }
 
     //Text Reading
-    public void readText(By elementLocation){
-       waitVisibility(elementLocation);
-       driver.findElement(elementLocation).getText();
+    public String readText(By elementLocation) {
+        waitVisibility(elementLocation);
+        return
+                driver.findElement(elementLocation).getText();
     }
+
     //Check if element is displayed
-    public boolean verifyExistence(By elementLocation){
-       waitVisibility(elementLocation);
-       return
-       driver.findElement(elementLocation).isDisplayed();
+    public boolean verifyExistence(By elementLocation) {
+        waitVisibility(elementLocation);
+        return
+                driver.findElement(elementLocation).isDisplayed();
+
 
     }
-    //Check if the element is enabled
-    public boolean checkIfEnabled(By elementLocation){
-       waitVisibility(elementLocation);
-       return
-               driver.findElement(elementLocation).isEnabled();
-    }
+
 
     //Check if the element hasn't already chosen
-    public void checkIfChosen(By elementLocation){
-       waitVisibility(elementLocation);
-      WebElement element= driver.findElement(elementLocation);
-      boolean selectedElement= element.isSelected();
-      if(!selectedElement)
-          return;
-          element.click();
+    public void checkIfChosen(By elementLocation) {
+        waitVisibility(elementLocation);
+        WebElement element = driver.findElement(elementLocation);
+        boolean selectedElement = element.isSelected();
+        System.out.println(selectedElement);
+        if (!selectedElement)
+            element.click();
 
     }
+
+    //Select a dropdown value by its index
+    public void selectByIndex(By elementLocation, int index) {
+        waitVisibility(elementLocation);
+        WebElement combo = driver.findElement(elementLocation);
+        Select selectIndex = new Select(combo);
+        selectIndex.selectByIndex(index);
+
+    }
+    //Select a dropdown value by its text
+    public void selectByText(By elementLocation, String text) {
+        waitVisibility(elementLocation);
+        WebElement combo = driver.findElement(elementLocation);
+        Select selectText = new Select(combo);
+        selectText.selectByValue(text);
+
+
+    }
+
+    //Find a list of an elements
+    public List<WebElement> findListOfElements(By elementLocation) {
+        waitVisibility(elementLocation);
+        List<WebElement> elements = driver.findElements(elementLocation);
+        return elements;
+    }
+
+    //Clicking on a dropdown and choose a random element from a list
+    public void chooseFromList(By elementLocation, By elementValues) throws InterruptedException {
+        waitVisibility(elementLocation);
+        clickButton(elementLocation);
+        waitVisibility(elementValues);
+        List<WebElement> values = findListOfElements(elementValues);
+        int rand = 0;
+        int max = values.size();
+        Random random = new Random();
+        do {
+            rand = random.nextInt(max);
+        } while (rand < 1);
+        values.get(rand).click();
+    }
+
 
     //Waiting for an element to be displayed
-    public void waitVisibility(By by){
-       try{
-           Thread.sleep(1500);
-       } catch (InterruptedException e) {
-           e.printStackTrace();
-       }
-       wait.until(ExpectedConditions.visibilityOfElementLocated(by));
+    public void waitVisibility(By by) {
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        wait.until(ExpectedConditions.visibilityOfElementLocated(by));
     }
-//*
-            }
 
-
-
-
-
-/*
-public static String readFromFile(String keyData, String filePath) throws Exception{
-        File xmlFile= new File(filePath);
-        DocumentBuilderFactory dbFactory= DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder= dbFactory.newDocumentBuilder();
-        Document doc= dBuilder.parse(xmlFile);
-        doc.getDocumentElement().normalize();
-        return doc.getElementsByTagName(keyData).item(0).getTextContent();
+    //Waiting for URL
+    public void waitForUrl(String url) {
+        try {
+            wait.until(ExpectedConditions.urlToBe(url));
+        } catch (TimeoutException e) {
 
         }
+    }
 
-public static void setUpBrowser(String keyData)throws Exception{
-        String browser= readFromFile("browserType", browserFile);
-        switch(browser){
-        case "Chrome":  path= chromePath;
-        driver= (WebDriver) new ChromeDriver(); break;
-        case "Fire Fox": path= fireFoxPath;
-        driver= (WebDriver) new FirefoxDriver(); break;
-default:
-        System.out.println("no browser was detected");
+    //check if the Actual Result equals to the Expected Result
+    public void assertEquals(String expectedResult, String actualResult) throws InterruptedException {
+
+        try {
+            Thread.sleep(1000);
+            Assert.assertEquals(expectedResult, actualResult);
+            myTest.log(LogStatus.PASS, "Succeeded" + myTest.addScreenCapture(takeScreenShot(getImagePath() + "\\" + System.currentTimeMillis())));
+
+        } catch (AssertionError e) {
+            myTest.log(LogStatus.FAIL, "An error occurred" + myTest.addScreenCapture(takeScreenShot(getImagePath() + "\\" + System.currentTimeMillis())));
         }
+    }
 
- */
+    //check if the Actual Result doesn't equal to the Expected Result
+    public void assertNotEquals(String unexpectedResult, String actualResult) throws InterruptedException {
+        try {
+            Thread.sleep(1000);
+            Assert.assertNotEquals(unexpectedResult, actualResult);
+            myTest.log(LogStatus.PASS, "Succeeded" + myTest.addScreenCapture(takeScreenShot(getImagePath() + "\\" + System.currentTimeMillis())));
+        } catch (AssertionError e) {
+            myTest.log(LogStatus.FAIL, "An error occurred" + myTest.addScreenCapture(takeScreenShot(getImagePath() + "\\" + System.currentTimeMillis())));
+        }
+    }
+
+    //uploading a picture
+    public void uploadPicture(String picturePath, By elementLocation) {
+        driver.findElement(elementLocation).sendKeys(picturePath);
+    }
+
+    //Closing advertisement
+    public void closePopup(By elementLocation) throws InterruptedException {
+
+        if (driver.findElement(elementLocation).isDisplayed()) {
+            clickButton(elementLocation);
+        } else {
+        }
+    }
+}
+
+
+
